@@ -69,7 +69,7 @@ def remove_mediana_sample(data:pd.DataFrame) -> (pd.DataFrame, dict):
         dict_['h3'].append(med_h3)
     return pd.DataFrame(dict_), med_dic
 
-def remove_mediana(data, med_dic) -> pd.DataFrame:
+def remove_mediana(data:pd.DataFrame, med_dic:dict) -> pd.DataFrame:
     dict_ = {
             'experiment_number':[],
             'normal':[],
