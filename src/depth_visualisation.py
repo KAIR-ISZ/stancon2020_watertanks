@@ -17,8 +17,28 @@ import pickle
 
 if __name__ == '__main__':
     
-    model = stan_utility.compile_model('./models/spline_fit_4.stan')
-    fit_dict = load_stan_model('./pickle/simulated__h3.pkl')
+    """
+    Summary:
+    Script allows you to analyze the depth of probability using Mahalanobis distance for simulation data.
+
+    
+    Parameters:
+    trajectories_name (str): name of the trajectory to carry out the analyzes. Possible names: 'h1', 'h2', 'h3'
+    spl_order (int): the order of the interpolation used in the experiments
+    num_knots (int): the order of the interpolation used in the experiments
+    stan_model_path (str): path to file with stan model used in analise process
+    pickle_path (int): path to file with 
+    """ 
+    
+    trajectories_name = 'h3'
+    spl_order = 3
+    num_knots = 15
+    
+    stan_model_path = './models/spline_fit_4.stan'
+    pickle_path = './pickle/simulated__h3.pkl'
+    
+    model = stan_utility.compile_model(stan_model_path)
+    fit_dict = load_stan_model(pickle_path)
     fit_healthy = fit_dict['fit_healthy']
     fit_fault1 = fit_dict['fit_fault1']
     fit_fault2 = fit_dict['fit_fault2']
@@ -54,16 +74,12 @@ if __name__ == '__main__':
     plt.show()
     
     N = 1 
-    # number of samples per trajectory
     M=1000
     sd_beta = np.std(beta_healthy, axis=0)
 
     trajectories1 = pd.read_csv('../data/result/result_med_scen0.csv')
     trajectories2 = pd.read_csv('../data/result/result_med_scen1.csv')
     trajectories3 = pd.read_csv('../data/result/result_med_scen2.csv')
-
-    spl_order = 3
-    num_knots = 15
 
     B0 = create_spline_matrix(trajectories1,N,M,spl_order,num_knots)
 
@@ -91,7 +107,7 @@ if __name__ == '__main__':
     ax_spl.set_title('B-splines and uncertainty')
     ax_y=axes2[0,1]
     ax_y = ribbon_plot(trajectories1.time.values[0:1000], y_healthy, ax_y)
-    qs = get_quantiles(trajectories1.pivot(index='time',columns='experiment_number',values='h3').values.T, [2.5, 50, 97.5])
+    qs = get_quantiles(trajectories1.pivot(index='time',columns='experiment_number',values=trajectories_name).values.T, [2.5, 50, 97.5])
     ax_y.plot(trajectories1.time.values[0:1000],
             qs[0, :], color='black', linestyle='--')
     ax_y.plot(trajectories1.time.values[0:1000],
@@ -105,7 +121,7 @@ if __name__ == '__main__':
 
     ax_y_ft=axes2[1,0]
     ax_y_ft = ribbon_plot(trajectories2.time.values[0:1000], y_pred_ft, ax_y_ft)
-    ax_y_ft.scatter(trajectories2.time.values[0:1000],trajectories3.h3.values[0:1000],color='black',s=6)
+    ax_y_ft.scatter(trajectories2.time.values[0:1000],trajectories3[trajectories_name].values[0:1000],color='black',s=6)
     ax_y_ft.set_ylabel('Water level deviation')
     ax_y_ft.set_xlabel('Time')
     ax_y_ft.set_xticks([0, 500, 1000])
